@@ -1,65 +1,202 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import {
+  loadState,
+  saveState,
+  recalculateTotals,
+} from "@/services/storageService";
+import {
+  AppState,
+  APP_VIEWS,
+  AppView,
+  StudySession,
+  Transaction,
+  UserSettings,
+} from "@/types";
+import { Footer } from "@/components/layouts/Footer";
+import { TimerView } from "@/components/layouts/TimerView";
+import { WalletView } from "@/components/layouts/WalletView";
+import { DashboardView } from "@/components/layouts/DashboardView";
+import { SettingsView } from "@/components/layouts/SettingsView";
+
+// Simple ID generator (client-safe)
+const generateId = () =>
+  Math.random().toString(36).substring(2, 11);
+
+export default function HomePage() {
+  const [state, setState] = useState<AppState | null>(null);
+  const [currentView, setCurrentView] = useState<AppView>(
+    APP_VIEWS.TIMER
+  );
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  /**
+   * Load persisted state (client only)
+   */
+  useEffect(() => {
+    const loaded = loadState();
+
+    // Verify totals
+    const { balance, earned, spent } =
+      recalculateTotals(loaded.transactions);
+
+    if (balance !== loaded.balance) {
+      console.warn("Recalculating corrupted balance...");
+      loaded.balance = balance;
+      loaded.totalEarned = earned;
+      loaded.totalSpent = spent;
+    }
+
+    // setState(loaded);
+    // setIsLoaded(true);
+  }, []);
+
+  /**
+   * Persist state on change
+   */
+  useEffect(() => {
+    if (isLoaded && state) {
+      saveState(state);
+    }
+  }, [state, isLoaded]);
+
+  /**
+   * Timer completed
+   */
+  const handleSessionComplete = (
+    durationSeconds: number,
+    earnings: number
+  ) => {
+    if (!state) return;
+
+    const now = Date.now();
+
+    const newSession: StudySession = {
+      id: generateId(),
+      startTime: now - durationSeconds * 1000,
+      endTime: now,
+      durationSeconds,
+      earnings,
+      hourlyRateSnapshot: state.settings.hourlyRate,
+    };
+
+    const newTransaction: Transaction = {
+      id: generateId(),
+      amount: earnings,
+      type: "EARN",
+      note: "Study Session",
+      createdAt: now,
+    };
+
+    setState((prev) =>
+      prev
+        ? {
+            ...prev,
+            balance: prev.balance + earnings,
+            totalEarned: prev.totalEarned + earnings,
+            sessions: [...prev.sessions, newSession],
+            transactions: [
+              ...prev.transactions,
+              newTransaction,
+            ],
+          }
+        : prev
+    );
+  };
+
+  /**
+   * Withdraw money
+   */
+  const handleWithdraw = (amount: number, note: string) => {
+    if (!state) return;
+
+    const newTransaction: Transaction = {
+      id: generateId(),
+      amount,
+      type: "SPEND",
+      note,
+      createdAt: Date.now(),
+    };
+
+    setState((prev) =>
+      prev
+        ? {
+            ...prev,
+            balance: prev.balance - amount,
+            totalSpent: prev.totalSpent + amount,
+            transactions: [
+              ...prev.transactions,
+              newTransaction,
+            ],
+          }
+        : prev
+    );
+  };
+
+  /**
+   * Update settings
+   */
+  const handleUpdateSettings = (
+    newSettings: UserSettings
+  ) => {
+    setState((prev) =>
+      prev
+        ? {
+            ...prev,
+            settings: newSettings,
+          }
+        : prev
+    );
+  };
+
+  // Loading (SSR-safe)
+  if (!isLoaded || !state) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-slate-100">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+      <main className="h-full">
+        {currentView === APP_VIEWS.TIMER && (
+          <TimerView
+            settings={state.settings}
+            onSessionComplete={handleSessionComplete}
+          />
+        )}
+
+        {currentView === APP_VIEWS.WALLET && (
+          <WalletView
+            balance={state.balance}
+            totalEarned={state.totalEarned}
+            transactions={state.transactions}
+            onWithdraw={handleWithdraw}
+          />
+        )}
+
+        {currentView === APP_VIEWS.DASHBOARD && (
+          <DashboardView
+            sessions={state.sessions}
+            totalEarned={state.totalEarned}
+          />
+        )}
+
+        {currentView === APP_VIEWS.SETTINGS && (
+          <SettingsView
+            settings={state.settings}
+            onUpdateSettings={handleUpdateSettings}
+          />
+        )}
       </main>
+
+      <Footer
+        currentView={currentView}
+        setView={setCurrentView}
+      />
     </div>
   );
 }
