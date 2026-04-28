@@ -13,10 +13,10 @@ export const Footer = ({
   setView,
 }: BottomNavProps) => {
   const navItems = [
-    { view: APP_VIEWS.TIMER, icon: Timer, label: 'Timer' },
-    { view: APP_VIEWS.WALLET, icon: Wallet, label: 'Wallet' },
-    { view: APP_VIEWS.DASHBOARD, icon: BarChart3, label: 'Stats' },
-    { view: APP_VIEWS.SETTINGS, icon: Settings, label: 'Settings' },
+    { view: APP_VIEWS.TIMER, icon: Timer, label: '計測' },
+    { view: APP_VIEWS.WALLET, icon: Wallet, label: '収支' },
+    { view: APP_VIEWS.ANALYSIS, icon: BarChart3, label: '分析' },
+    { view: APP_VIEWS.SETTINGS, icon: Settings, label: '設定' },
   ];
 
   return (

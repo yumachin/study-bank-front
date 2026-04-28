@@ -15,30 +15,13 @@ export const TimerView = ({
   onSessionComplete,
 }: TimerViewProps) => {
   const [isActive, setIsActive] = useState<boolean>(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
-  // const [currentEarnings, setCurrentEarnings] = useState<number>(0);
-
-  // Hold interval ID
+  const [passedSeconds, setPassedSeconds] = useState<number>(0);
   const intervalRef = useRef<number | null>(null);
 
-  /**
-   * Calculate earnings when time or rate changes
-   * Formula: (seconds / 3600) * hourlyRate
-   */
-  // useEffect(() => {
-  //   const earnings =
-  //     (elapsedSeconds / 3600) * settings.hourlyRate;
-  //   setCurrentEarnings(earnings);
-  // }, [elapsedSeconds, settings.hourlyRate]);
-  const currentEarnings = (elapsedSeconds / 3600) * settings.hourlyRate;
-
-  /**
-   * Timer start / stop logic
-   */
   useEffect(() => {
     if (isActive) {
       intervalRef.current = window.setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
+        setPassedSeconds((prev) => prev + 1);
       }, 1000);
     } else if (intervalRef.current !== null) {
       clearInterval(intervalRef.current);
@@ -53,19 +36,14 @@ export const TimerView = ({
     };
   }, [isActive]);
 
+  const currentEarnings = (passedSeconds / 3600) * settings.hourlyRate;
+
   const toggleTimer = () => {
     setIsActive((prev) => !prev);
   };
 
   const stopTimer = () => {
-    if (elapsedSeconds <= 0) return;
-
-    const confirmed = window.confirm(
-      "Finish this study session and collect your earnings?"
-    );
-
-    if (!confirmed) return;
-
+    if (passedSeconds <= 0) return;
     setIsActive(false);
 
     if (intervalRef.current !== null) {
@@ -73,14 +51,9 @@ export const TimerView = ({
       intervalRef.current = null;
     }
 
-    onSessionComplete(elapsedSeconds, currentEarnings);
-    setElapsedSeconds(0);
-    // setCurrentEarnings(0);
+    onSessionComplete(passedSeconds, currentEarnings);
   };
 
-  /**
-   * Format seconds -> HH:MM:SS
-   */
   const formatTime = (totalSeconds: number): string => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -92,22 +65,19 @@ export const TimerView = ({
   };
 
   return (
-    <div className="flex flex-col h-full items-center justify-center p-6 space-y-8 animate-in fade-in duration-500">
-      {/* Rate Display */}
+    <div className="flex flex-col items-center justify-center p-6 space-y-8 animate-in fade-in duration-500">
       <div className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-sm border border-indigo-100">
         <TrendingUp size={16} />
         <span>
-          Current Rate: ¥
-          {settings.hourlyRate.toLocaleString()} / hr
+          現在のレート: ¥
+          {settings.hourlyRate.toLocaleString()} / 時
         </span>
       </div>
 
-      {/* Earnings */}
       <div className="text-center space-y-2 w-full max-w-sm">
-        <div className="text-slate-500 text-sm font-medium tracking-wide uppercase">
-          Current Earnings
+        <div className="text-slate-500 text-sm font-bold tracking-wide uppercase">
+          現在の収益
         </div>
-
         <div className="relative">
           <div
             className={`text-6xl sm:text-7xl font-mono font-bold tracking-tighter transition-colors duration-300 ${
@@ -117,14 +87,12 @@ export const TimerView = ({
             ¥{Math.floor(currentEarnings).toLocaleString()}
           </div>
 
-          {/* Decimal animation */}
           <div className="text-lg text-slate-400 font-mono font-medium absolute -bottom-6 right-0 left-0">
             .{(currentEarnings % 1).toFixed(2).substring(2)}
           </div>
         </div>
       </div>
 
-      {/* Timer */}
       <div className="py-8 w-full max-w-xs flex justify-center">
         <div className="relative">
           {isActive && (
@@ -138,12 +106,11 @@ export const TimerView = ({
                 : "text-slate-400"
             }`}
           >
-            {formatTime(elapsedSeconds)}
+            {formatTime(passedSeconds)}
           </div>
         </div>
       </div>
 
-      {/* Controls */}
       <div className="flex gap-4 w-full max-w-xs">
         {isActive ? (
           <Button
@@ -153,7 +120,7 @@ export const TimerView = ({
             onClick={toggleTimer}
             className="shadow-emerald-200 shadow-lg"
           >
-            <Pause className="mr-2" /> Pause
+            <Pause className="mr-2" /> ストップ
           </Button>
         ) : (
           <Button
@@ -161,36 +128,29 @@ export const TimerView = ({
             size="xl"
             fullWidth
             onClick={toggleTimer}
-            className={
-              elapsedSeconds > 0
-                ? "bg-amber-500 hover:bg-amber-600 focus:ring-amber-500"
-                : "shadow-indigo-200 shadow-lg"
-            }
           >
             <Play className="mr-2" />
-            {elapsedSeconds > 0 ? "Resume" : "Start"}
+            {passedSeconds > 0 ? "再開" : "開始"}
           </Button>
         )}
 
-        {elapsedSeconds > 0 && (
+        {passedSeconds > 0 && (
           <Button
             variant="danger"
             size="xl"
             onClick={stopTimer}
             className="w-auto px-6"
-            title="Stop & Save"
           >
             <Square fill="currentColor" />
           </Button>
         )}
       </div>
 
-      {/* Tip */}
       <div className="mt-8 text-xs text-slate-400 flex items-center gap-1 max-w-xs text-center leading-relaxed">
         <AlertCircle size={12} />
         <span>
-          Keep this tab open to track time. Background tracking
-          may be limited by your browser.
+          このタブを開いたままにして、時間を計測してください。
+          ブラウザの仕様により、バックグラウンドでの計測は制限されることがあります。
         </span>
       </div>
     </div>

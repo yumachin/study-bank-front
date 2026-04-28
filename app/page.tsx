@@ -1,73 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  loadState,
-  saveState,
-  recalculateTotals,
-} from "@/services/storageService";
-import {
-  AppState,
-  APP_VIEWS,
-  AppView,
-  StudySession,
-  Transaction,
-  UserSettings,
-} from "@/types";
+import { loadState, saveState, recalculateTotals } from "@/services/storageService";
+import { AppState, APP_VIEWS, AppView, StudySession, Transaction, UserSettings } from "@/types";
 import { Footer } from "@/components/layouts/Footer";
-import { TimerView } from "@/components/layouts/TimerView";
-import { WalletView } from "@/components/layouts/WalletView";
-import { DashboardView } from "@/components/layouts/DashboardView";
-import { SettingsView } from "@/components/layouts/SettingsView";
+import { TimerView } from "@/components/views/TimerView";
+import { WalletView } from "@/components/views/WalletView";
+import { AnalysisView } from "@/components/views/AnalysisView";
+import { SettingsView } from "@/components/views/SettingsView";
+import { Header } from "@/components/layouts/Header";
 
 // Simple ID generator (client-safe)
 const generateId = () =>
   Math.random().toString(36).substring(2, 11);
 
-export default function HomePage() {
-  const [state, setState] = useState<AppState | null>(null);
-  const [currentView, setCurrentView] = useState<AppView>(
-    APP_VIEWS.TIMER
-  );
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  /**
-   * Load persisted state (client only)
-   */
-  useEffect(() => {
+export default function Home() {
+  const [currentView, setCurrentView] = useState<AppView>(APP_VIEWS.TIMER);
+  const [state, setState] = useState<AppState>(() => {
     const loaded = loadState();
-
-    // Verify totals
-    const { balance, earned, spent } =
-      recalculateTotals(loaded.transactions);
+    console.log("Loaded state:", loaded);
+    const { balance, earned, spent } = recalculateTotals(loaded.transactions);
 
     if (balance !== loaded.balance) {
-      console.warn("Recalculating corrupted balance...");
-      loaded.balance = balance;
-      loaded.totalEarned = earned;
-      loaded.totalSpent = spent;
+      return {
+        ...loaded,
+        balance,
+        totalEarned: earned,
+        totalSpent: spent,
+      };
     }
 
-    // setState(loaded);
-    // setIsLoaded(true);
-  }, []);
-
-  /**
-   * Persist state on change
-   */
+    return loaded;
+  });
+  
   useEffect(() => {
-    if (isLoaded && state) {
-      saveState(state);
-    }
-  }, [state, isLoaded]);
+    if (state) saveState(state);
+  }, [state]);
 
-  /**
-   * Timer completed
-   */
-  const handleSessionComplete = (
-    durationSeconds: number,
-    earnings: number
-  ) => {
+  const handleSessionComplete = (durationSeconds: number, earnings: number) => {
     if (!state) return;
 
     const now = Date.now();
@@ -105,9 +75,6 @@ export default function HomePage() {
     );
   };
 
-  /**
-   * Withdraw money
-   */
   const handleWithdraw = (amount: number, note: string) => {
     if (!state) return;
 
@@ -134,9 +101,6 @@ export default function HomePage() {
     );
   };
 
-  /**
-   * Update settings
-   */
   const handleUpdateSettings = (
     newSettings: UserSettings
   ) => {
@@ -150,8 +114,7 @@ export default function HomePage() {
     );
   };
 
-  // Loading (SSR-safe)
-  if (!isLoaded || !state) {
+  if (!state) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-100">
         Loading...
@@ -160,7 +123,8 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 py-24">
+      <Header />
       <main className="h-full">
         {currentView === APP_VIEWS.TIMER && (
           <TimerView
@@ -178,8 +142,8 @@ export default function HomePage() {
           />
         )}
 
-        {currentView === APP_VIEWS.DASHBOARD && (
-          <DashboardView
+        {currentView === APP_VIEWS.ANALYSIS && (
+          <AnalysisView
             sessions={state.sessions}
             totalEarned={state.totalEarned}
           />

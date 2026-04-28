@@ -17,14 +17,13 @@ export interface Transaction {
   id: string;
   amount: Yen;
   type: TransactionType;
-  note: string; // e.g., "Study Session" or "Bought Coffee"
+  note: string;
   createdAt: Timestamp;
 }
 
 export interface UserSettings {
-  hourlyRate: Yen; // Yen per hour
-  dailyGoalSeconds: Seconds; // Target study time in seconds
-  themeColor: string;
+  hourlyRate: Yen;
+  dailyGoalSeconds: Seconds;
 }
 
 export interface AppState {
@@ -39,7 +38,7 @@ export interface AppState {
 export const APP_VIEWS = {
   TIMER: 'TIMER',
   WALLET: 'WALLET',
-  DASHBOARD: 'DASHBOARD',
+  ANALYSIS: 'ANALYSIS',
   SETTINGS: 'SETTINGS',
 } as const;
 

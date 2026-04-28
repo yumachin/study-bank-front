@@ -8,8 +8,9 @@ import {
   History,
   CreditCard,
 } from "lucide-react";
-import { Transaction } from "@/types";
+import { APP_VIEWS, Transaction } from "@/types";
 import { Button } from "../ui/Button ";
+import { Heading } from "../ui/Heading";
 
 type WalletViewProps = {
   balance: number;
@@ -49,17 +50,8 @@ export const WalletView = ({
 
   return (
     <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
-      {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">
-          My Wallet
-        </h1>
-        <p className="text-slate-500 text-sm">
-          Manage your study earnings
-        </p>
-      </header>
+      <Heading currentView={APP_VIEWS.WALLET} />
 
-      {/* Balance Card */}
       <div className="bg-linear-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10" />
 
@@ -67,7 +59,7 @@ export const WalletView = ({
           <div className="flex items-center gap-2 text-indigo-100 mb-1">
             <Wallet size={18} />
             <span className="text-sm font-medium">
-              Available Balance
+              利用可能残高
             </span>
           </div>
 
@@ -78,7 +70,7 @@ export const WalletView = ({
           <div className="flex justify-between items-end">
             <div>
               <div className="text-xs text-indigo-200 uppercase tracking-wider mb-1">
-                Total Earned
+                累計獲得額
               </div>
               <div className="font-mono font-medium">
                 ¥{Math.floor(totalEarned).toLocaleString()}
@@ -90,7 +82,7 @@ export const WalletView = ({
                 onClick={() => setIsWithdrawMode(true)}
                 className="bg-white text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold shadow-sm active:scale-95 transition-transform"
               >
-                Use Funds
+                使う
               </button>
             )}
           </div>
@@ -106,7 +98,7 @@ export const WalletView = ({
                 size={18}
                 className="text-indigo-500"
               />
-              Use Money
+              使用額
             </h3>
 
             <button
@@ -122,8 +114,8 @@ export const WalletView = ({
             className="space-y-4"
           >
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Amount (¥)
+              <label className="block text-xs font-medium text-slate-500 ml-1 mb-1">
+                金額 (¥)
               </label>
               <input
                 type="number"
@@ -140,8 +132,8 @@ export const WalletView = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Reason (Optional)
+              <label className="block text-xs font-medium text-slate-500 ml-1 mb-1">
+                理由 (任意)
               </label>
               <input
                 type="text"
@@ -155,7 +147,7 @@ export const WalletView = ({
             </div>
 
             <Button type="submit" fullWidth>
-              Confirm Withdrawal
+              出金する
             </Button>
           </form>
         </div>
@@ -165,13 +157,13 @@ export const WalletView = ({
       <div>
         <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
           <History size={18} className="text-slate-400" />
-          History
+          履歴
         </h3>
 
         <div className="space-y-3">
           {transactions.length === 0 ? (
             <div className="text-center py-8 text-slate-400 text-sm bg-white rounded-2xl border border-dashed border-slate-200">
-              No transactions yet. Start studying!
+              履歴はまだありません。
             </div>
           ) : (
             transactions

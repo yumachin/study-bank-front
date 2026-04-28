@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { UserSettings } from "@/types";
-import { Save, DollarSign } from "lucide-react";
+import { APP_VIEWS, UserSettings } from "@/types";
+import { Save } from "lucide-react";
 import { Button } from "../ui/Button ";
+import { Heading } from "../ui/Heading";
 
 type SettingsViewProps = {
   settings: UserSettings;
@@ -14,6 +15,7 @@ export const SettingsView = ({
   settings,
   onUpdateSettings,
 }: SettingsViewProps) => {
+  const [_, setUser] = useState(null);
   const [hourlyRate, setHourlyRate] = useState<string>(
     settings.hourlyRate.toString()
   );
@@ -35,33 +37,42 @@ export const SettingsView = ({
     }
   };
 
+  const handleSave2 = async() => {
+    try {
+      const res = await fetch("http://localhost:8080/api/users/me")
+      const user = await res.json()
+      return user
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+
+  const handleSave3 = async() => {
+    try {
+      const user = await handleSave2()
+      console.log("Fetched user:", user)
+      setUser(user)
+    } catch (error) {
+      console.error("Error in handleSave3:", error);
+    }
+  }
+
+
   return (
     <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
-      {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
-        <p className="text-slate-500 text-sm">
-          Customize your experience
-        </p>
-      </header>
+      <Heading currentView={APP_VIEWS.SETTINGS} />
 
-      {/* Card */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex items-center gap-2">
-          <DollarSign size={18} className="text-slate-400" />
-          <h2 className="font-bold text-slate-700">Value of Time</h2>
+        <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex flex-col justify-center gap-2">
+          <h2 className="font-bold text-slate-700">時給 (¥)</h2>
+          <p className="text-xs text-slate-500 mb-3">
+            残高がどれくらいの速さで増えるかが決まります。
+          </p>
         </div>
 
         <form onSubmit={handleSave} className="p-5 space-y-6">
-          {/* Hourly Rate */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
-              Hourly Wage (¥)
-            </label>
-            <p className="text-xs text-slate-500 mb-3">
-              How much is one hour of your study time worth? This determines how
-              fast your balance grows.
-            </p>
+            
 
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono">
@@ -76,18 +87,15 @@ export const SettingsView = ({
             </div>
           </div>
 
-          {/* Note */}
           <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
             <p className="text-xs text-amber-800 font-medium">
-              Note: Changing the rate only affects future study sessions. Your
-              current balance will remain unchanged.
+              注意: レートの変更は今後の勉強セッションにのみ影響します。現在の残高は変更されません。
             </p>
           </div>
 
-          {/* Save Button */}
-          <Button type="submit" fullWidth size="lg">
+          <Button type="submit" fullWidth size="lg" onClick={handleSave3}>
             <Save size={18} className="mr-2" />
-            Save Changes
+            保存
           </Button>
         </form>
       </div>

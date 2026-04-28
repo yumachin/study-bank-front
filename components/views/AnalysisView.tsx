@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { StudySession } from '../../types/index';
+import { APP_VIEWS, type StudySession } from '../../types/index';
 import {
   BarChart,
   Bar,
@@ -13,8 +13,9 @@ import {
   Cell,
 } from 'recharts';
 import { Calendar, Clock, Award } from 'lucide-react';
+import { Heading } from '../ui/Heading';
 
-interface DashboardViewProps {
+interface AnalysisViewProps {
   sessions: StudySession[];
   totalEarned: number;
 }
@@ -25,7 +26,7 @@ interface ChartDataItem {
   fullDate: string;
 }
 
-export const DashboardView: React.FC<DashboardViewProps> = ({
+export const AnalysisView: React.FC<AnalysisViewProps> = ({
   sessions,
   totalEarned,
 }) => {
@@ -37,7 +38,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       const d = new Date(today);
       d.setDate(today.getDate() - i);
 
-      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayLabel = d.toLocaleDateString('ja-JP', { weekday: 'short' });
       const fullDate = d.toDateString();
 
       const daySessions = sessions.filter(
@@ -67,11 +68,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   return (
     <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
-      {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-slate-900">Analytics</h1>
-        <p className="text-slate-500 text-sm">Your study performance</p>
-      </header>
+      <Heading currentView={APP_VIEWS.ANALYSIS} />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 gap-4">
@@ -79,12 +76,12 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center gap-2 text-indigo-500 mb-2">
             <Clock size={16} />
             <span className="text-xs font-bold uppercase tracking-wider">
-              Total Time
+              合計時間
             </span>
           </div>
           <div className="text-2xl font-mono font-bold text-slate-800">
             {totalStudyHours.toFixed(1)}
-            <span className="text-sm font-sans text-slate-400 ml-1">hrs</span>
+            <span className="text-sm font-sans text-slate-400 ml-1">時間</span>
           </div>
         </div>
 
@@ -92,7 +89,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="flex items-center gap-2 text-emerald-500 mb-2">
             <Award size={16} />
             <span className="text-xs font-bold uppercase tracking-wider">
-              Lifetime
+              累計獲得額
             </span>
           </div>
           <div className="text-2xl font-mono font-bold text-slate-800">
@@ -102,12 +99,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Weekly Chart */}
       <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm">
         <div className="flex items-center gap-2 mb-6">
           <Calendar size={18} className="text-slate-400" />
           <h3 className="font-bold text-slate-800">
-            Last 7 Days (Hours)
+            過去７日間 (時間)
           </h3>
         </div>
 
@@ -160,13 +156,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Motivation Tip */}
       <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
-        <h4 className="text-indigo-900 font-bold text-sm mb-1">
-          Productivity Tip
+        <h4 className="text-indigo-900 font-bold text-sm mb-2">
+          生産性向上のワンポイントアドバイス
         </h4>
         <p className="text-indigo-700 text-xs leading-relaxed">
-          Consistent short sessions are better than one long cram
-          session. Try the Pomodoro technique (25m study, 5m
-          break) to maximize earnings!
+          短時間の学習をコツコツ続ける方が、
+          一度に長時間詰め込むより効果的です。
+          ポモドーロ・テクニック（25分学習・5分休憩）を試して、
+          収益を最大化しましょう！
         </p>
       </div>
     </div>

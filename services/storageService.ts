@@ -1,11 +1,10 @@
-import { AppState, UserSettings, StudySession, Transaction } from '../types';
+import { AppState, UserSettings, Transaction } from '../types';
 
 const STORAGE_KEY = 'studybank_v1_data';
 
 const DEFAULT_SETTINGS: UserSettings = {
-  hourlyRate: 1000, // Default 1000 yen/hour
-  dailyGoalSeconds: 7200, // 2 hours
-  themeColor: 'indigo',
+  hourlyRate: 1500,
+  dailyGoalSeconds: 60 * 60 * 2,
 };
 
 const INITIAL_STATE: AppState = {
@@ -19,13 +18,9 @@ const INITIAL_STATE: AppState = {
 
 export const loadState = (): AppState => {
   try {
-    const serializedState = localStorage.getItem(STORAGE_KEY);
-    if (serializedState === null) {
-      return INITIAL_STATE;
-    }
-    return JSON.parse(serializedState);
+    return INITIAL_STATE;
   } catch (err) {
-    console.error("Could not load state", err);
+    console.error("基本情報の取得に失敗", err);
     return INITIAL_STATE;
   }
 };
@@ -35,11 +30,10 @@ export const saveState = (state: AppState): void => {
     const serializedState = JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY, serializedState);
   } catch (err) {
-    console.error("Could not save state", err);
+    console.error("基本情報の保存に失敗", err);
   }
 };
 
-// Helper to calculate total earned/spent if data gets desynced
 export const recalculateTotals = (transactions: Transaction[]) => {
   let earned = 0;
   let spent = 0;
