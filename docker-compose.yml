@@ -1,0 +1,22 @@
+services:
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studybank-front
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount the current directory to /app in the container for hot-reloading
+      - .:/app
+      # Create anonymous volumes for node_modules and .next so they are not 
+      # overwritten by or synced to the host machine's directory
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      # Ensure Next.js binds to all interfaces so it's accessible from outside the container
+      - HOSTNAME=0.0.0.0
+      # Enable polling for hot-reloading on environments that don't support file system events well (like WSL or some macOS setups)
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
