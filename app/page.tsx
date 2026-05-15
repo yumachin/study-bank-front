@@ -9,6 +9,11 @@ import { WalletView } from "@/components/views/WalletView";
 import { AnalysisView } from "@/components/views/AnalysisView";
 import { SettingsView } from "@/components/views/SettingsView";
 import { Header } from "@/components/layouts/Header";
+import { SessionCompleteModal } from "@/components/ui/SessionCompleteModal";
+import {
+  addStudyNoteToHistory,
+  removeStudyNoteFromHistory,
+} from "@/lib/studyNoteHistory";
 
 // Simple ID generator (client-safe)
 const generateId = () =>
@@ -16,9 +21,11 @@ const generateId = () =>
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<AppView>(APP_VIEWS.TIMER);
+  const [celebrationEarnings, setCelebrationEarnings] = useState<number | null>(
+    null
+  );
   const [state, setState] = useState<AppState>(() => {
     const loaded = loadState();
-    console.log("Loaded state:", loaded);
     const { balance, earned, spent } = recalculateTotals(loaded.transactions);
 
     if (balance !== loaded.balance) {
@@ -37,9 +44,14 @@ export default function Home() {
     if (state) saveState(state);
   }, [state]);
 
-  const handleSessionComplete = (durationSeconds: number, earnings: number) => {
+  const handleSessionComplete = (
+    durationSeconds: number,
+    earnings: number,
+    note: string
+  ) => {
     if (!state) return;
 
+    const flooredEarnings = Math.floor(earnings);
     const now = Date.now();
 
     const newSession: StudySession = {
@@ -47,15 +59,15 @@ export default function Home() {
       startTime: now - durationSeconds * 1000,
       endTime: now,
       durationSeconds,
-      earnings,
+      earnings: flooredEarnings,
       hourlyRateSnapshot: state.settings.hourlyRate,
     };
 
     const newTransaction: Transaction = {
       id: generateId(),
-      amount: earnings,
+      amount: flooredEarnings,
       type: "EARN",
-      note: "Study Session",
+      note,
       createdAt: now,
     };
 
@@ -63,8 +75,8 @@ export default function Home() {
       prev
         ? {
             ...prev,
-            balance: prev.balance + earnings,
-            totalEarned: prev.totalEarned + earnings,
+            balance: prev.balance + flooredEarnings,
+            totalEarned: prev.totalEarned + flooredEarnings,
             sessions: [...prev.sessions, newSession],
             transactions: [
               ...prev.transactions,
@@ -101,14 +113,30 @@ export default function Home() {
     );
   };
 
-  const handleUpdateSettings = (
-    newSettings: UserSettings
-  ) => {
+  const handleUpdateSettings = (newSettings: UserSettings) => {
+    setState((prev) => (prev ? { ...prev, settings: newSettings } : prev));
+  };
+
+  const handleAddStudyNote = (note: string) => {
     setState((prev) =>
       prev
         ? {
             ...prev,
-            settings: newSettings,
+            studyNoteHistory: addStudyNoteToHistory(prev.studyNoteHistory, note),
+          }
+        : prev
+    );
+  };
+
+  const handleRemoveStudyNote = (note: string) => {
+    setState((prev) =>
+      prev
+        ? {
+            ...prev,
+            studyNoteHistory: removeStudyNoteFromHistory(
+              prev.studyNoteHistory,
+              note
+            ),
           }
         : prev
     );
@@ -129,7 +157,17 @@ export default function Home() {
         {currentView === APP_VIEWS.TIMER && (
           <TimerView
             settings={state.settings}
+            studyNoteHistory={state.studyNoteHistory}
+            onUpdateSettings={handleUpdateSettings}
+            onAddStudyNote={handleAddStudyNote}
+            onRemoveStudyNote={handleRemoveStudyNote}
             onSessionComplete={handleSessionComplete}
+            onNavigateToWallet={(earningsYen) => {
+              if (state.settings.showSessionCompleteModal) {
+                setCelebrationEarnings(earningsYen);
+              }
+              setCurrentView(APP_VIEWS.WALLET);
+            }}
           />
         )}
 
@@ -160,6 +198,20 @@ export default function Home() {
       <Footer
         currentView={currentView}
         setView={setCurrentView}
+      />
+
+      <SessionCompleteModal
+        isOpen={celebrationEarnings !== null}
+        earningsYen={celebrationEarnings ?? 0}
+        onConfirm={(hideInFuture) => {
+          if (hideInFuture) {
+            handleUpdateSettings({
+              ...state.settings,
+              showSessionCompleteModal: false,
+            });
+          }
+          setCelebrationEarnings(null);
+        }}
       />
     </div>
   );

@@ -24,8 +24,12 @@ export interface Transaction {
 export interface UserSettings {
   hourlyRate: Yen;
   /** この金額を稼ぐために必要な勉強時間を算出するための目標（円） */
-  targetIncomeYen: Yen;
+  targetIncome: Yen;
   dailyGoalSeconds: Seconds;
+  /** 記帳後に収支ページでお祝いモーダルを表示するか */
+  showSessionCompleteModal: boolean;
+  /** タイマー開始時に学習内容入力モーダルを表示するか */
+  showSessionStartModal: boolean;
 }
 
 export interface AppState {
@@ -35,6 +39,8 @@ export interface AppState {
   sessions: StudySession[];
   transactions: Transaction[];
   settings: UserSettings;
+  /** 開始モーダルで選べる過去の学習名 */
+  studyNoteHistory: string[];
 }
 
 export const APP_VIEWS = {

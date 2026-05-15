@@ -9,6 +9,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { APP_VIEWS, Transaction } from "@/types";
+import { showErrorToast } from "@/lib/toast";
 import { Button } from "../ui/Button ";
 import { Heading } from "../ui/Heading";
 
@@ -19,17 +20,12 @@ type WalletViewProps = {
   onWithdraw: (amount: number, note: string) => void;
 };
 
-export const WalletView = ({
-  balance,
-  totalEarned,
-  transactions,
-  onWithdraw,
-}: WalletViewProps) => {
+export const WalletView = ({ balance, totalEarned, transactions, onWithdraw }: WalletViewProps) => {
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
   const [withdrawNote, setWithdrawNote] = useState<string>("");
   const [isWithdrawMode, setIsWithdrawMode] = useState<boolean>(false);
 
-  const handleWithdraw = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleWithdraw = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const amount = Number(withdrawAmount);
@@ -37,11 +33,11 @@ export const WalletView = ({
     if (Number.isNaN(amount) || amount <= 0) return;
 
     if (amount > balance) {
-      window.alert("Insufficient funds!");
+      showErrorToast("残高が足りません…");
       return;
     }
 
-    onWithdraw(amount, withdrawNote || "Withdrawal");
+    onWithdraw(amount, withdrawNote || "不明な出金");
 
     setWithdrawAmount("");
     setWithdrawNote("");
@@ -146,7 +142,7 @@ export const WalletView = ({
               />
             </div>
 
-            <Button type="submit" fullWidth>
+            <Button type="submit" fullWidth className="!font-bold">
               出金する
             </Button>
           </form>
@@ -212,11 +208,11 @@ export const WalletView = ({
                     className={`font-mono font-bold ${
                       t.type === "EARN"
                         ? "text-emerald-600"
-                        : "text-slate-900"
+                        : "text-rose-600"
                     }`}
                   >
                     {t.type === "EARN" ? "+" : "-"}¥
-                    {t.amount.toLocaleString()}
+                    {Math.floor(t.amount).toLocaleString()}
                   </div>
                 </div>
               ))
