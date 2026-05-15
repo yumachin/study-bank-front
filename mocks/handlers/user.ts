@@ -1,3 +1,5 @@
+// mock APIの定義
+
 import { http, HttpResponse } from "msw"
 
 export const userHandlers = [

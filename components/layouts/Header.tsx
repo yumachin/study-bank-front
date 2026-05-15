@@ -13,7 +13,7 @@ export const Header: React.FC = () => {
         </div>
         
         <button className="w-8 h-8 rounded-full bg-linear-to-br from-slate-100 to-slate-200 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500 shadow-sm active:scale-95 transition-transform">
-          私
+          Icon
         </button>
       </div>
     </header>

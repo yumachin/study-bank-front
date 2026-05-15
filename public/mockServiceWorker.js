@@ -1,3 +1,5 @@
+/* npm install msw --save-dev　＆＆　　npx msw init public/ で作成 */
+
 /* eslint-disable */
 /* tslint:disable */
 

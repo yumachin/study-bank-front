@@ -67,7 +67,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
   }, [sessions]);
 
   return (
-    <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
+    <div className="px-6 pb-24 space-y-6 max-w-md mx-auto">
       <Heading currentView={APP_VIEWS.ANALYSIS} />
 
       {/* Summary Cards */}

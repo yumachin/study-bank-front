@@ -8,10 +8,7 @@ interface BottomNavProps {
   setView: (view: AppView) => void;
 }
 
-export const Footer = ({
-  currentView,
-  setView,
-}: BottomNavProps) => {
+export const Footer = ({ currentView, setView }: BottomNavProps) => {
   const navItems = [
     { view: APP_VIEWS.TIMER, icon: Timer, label: '計測' },
     { view: APP_VIEWS.WALLET, icon: Wallet, label: '収支' },
@@ -20,8 +17,8 @@ export const Footer = ({
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white px-6 pt-2 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-      <div className="mx-auto flex max-w-md items-center justify-between pb-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white px-6 pt-4 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      <div className="mx-auto flex max-w-md items-center justify-between pb-6">
         {navItems.map((item) => {
           const isActive = currentView === item.view;
           const Icon = item.icon;
