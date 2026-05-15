@@ -4,18 +4,22 @@ import { useState, useEffect, useRef } from "react";
 import { Play, Pause, AlertCircle, TrendingUp } from "lucide-react";
 import { UserSettings } from "@/types";
 import { Button } from "../ui/Button ";
+import { ConfirmModal } from "../ui/ConfirmModal";
 
 type TimerViewProps = {
   settings: UserSettings;
   onSessionComplete: (durationSeconds: number, earnings: number) => void;
+  onNavigateToWallet: () => void;
 };
 
 export const TimerView = ({
   settings,
   onSessionComplete,
+  onNavigateToWallet,
 }: TimerViewProps) => {
   const [isActive, setIsActive] = useState<boolean>(false);
   const [passedSeconds, setPassedSeconds] = useState<number>(0);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -42,6 +46,11 @@ export const TimerView = ({
     setIsActive((prev) => !prev);
   };
 
+  const openModal = () => {
+    setIsConfirmModalOpen(true)
+    stopTimer()
+  }
+
   const recordEarnings = () => {
     setIsActive(false);
 
@@ -51,6 +60,9 @@ export const TimerView = ({
     }
 
     onSessionComplete(passedSeconds, currentEarnings);
+    setPassedSeconds(0);
+    setIsConfirmModalOpen(false);
+    onNavigateToWallet();
   };
 
   const formatTime = (totalSeconds: number): string => {
@@ -137,12 +149,20 @@ export const TimerView = ({
             variant="secondary"
             size="xl"
             fullWidth
-            onClick={recordEarnings}
+            onClick={openModal}
           >
             記帳する
           </Button>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        title="本当に記帳しますか？"
+        description={`¥${Math.floor(currentEarnings).toLocaleString()} を収支に記録します。`}
+        onConfirm={recordEarnings}
+        onCancel={() => setIsConfirmModalOpen(false)}
+      />
 
       <div className="mt-8 text-xs text-slate-400 flex items-center max-w-sm text-center leading-relaxed">
         <AlertCircle size={12} />

@@ -18,7 +18,6 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<AppView>(APP_VIEWS.TIMER);
   const [state, setState] = useState<AppState>(() => {
     const loaded = loadState();
-    console.log("Loaded state:", loaded);
     const { balance, earned, spent } = recalculateTotals(loaded.transactions);
 
     if (balance !== loaded.balance) {
@@ -101,17 +100,8 @@ export default function Home() {
     );
   };
 
-  const handleUpdateSettings = (
-    newSettings: UserSettings
-  ) => {
-    setState((prev) =>
-      prev
-        ? {
-            ...prev,
-            settings: newSettings,
-          }
-        : prev
-    );
+  const handleUpdateSettings = ( newSettings: UserSettings ) => {
+    setState((prev) => ({ ...prev, settings: newSettings }));
   };
 
   if (!state) {
@@ -130,6 +120,7 @@ export default function Home() {
           <TimerView
             settings={state.settings}
             onSessionComplete={handleSessionComplete}
+            onNavigateToWallet={() => setCurrentView(APP_VIEWS.WALLET)}
           />
         )}
 

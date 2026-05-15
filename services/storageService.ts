@@ -4,7 +4,7 @@ const STORAGE_KEY = 'studybank_v1_data';
 
 const DEFAULT_SETTINGS: UserSettings = {
   hourlyRate: 1000,
-  targetIncomeYen: 200000,
+  targetIncome: 200000,
   dailyGoalSeconds: 60 * 60 * 2,
 };
 

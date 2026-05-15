@@ -10,7 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
+  Rectangle,
 } from 'recharts';
 import { Calendar, Clock, Award } from 'lucide-react';
 import { Heading } from '../ui/Heading';
@@ -26,10 +26,17 @@ interface ChartDataItem {
   fullDate: string;
 }
 
-export const AnalysisView: React.FC<AnalysisViewProps> = ({
-  sessions,
-  totalEarned,
-}) => {
+export const AnalysisView: React.FC<AnalysisViewProps> = ({ sessions, totalEarned }) => {
+  const RenderCustomBar = (props: any) => {
+    const { fill, payload, ...rest } = props;
+    // payload の中に各データの塊（entry）が入っています
+    const barColor = payload.hours > 0 ? '#4f46e5' : '#e2e8f0';
+  
+    // Recharts標準のRectangle（四角形）コンポーネントにプロップを引き継ぎ、色だけ上書きします
+    // ※ 'recharts' から Rectangle をインポートしてください
+    return <Rectangle {...rest} fill={barColor} />;
+  };
+  
   const chartData: ChartDataItem[] = useMemo(() => {
     const days: ChartDataItem[] = [];
     const today = new Date();
@@ -139,32 +146,15 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({
                     '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                 }}
               />
-              <Bar dataKey="hours" radius={[6, 6, 6, 6]} barSize={32}>
-                {chartData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={
-                      entry.hours > 0 ? '#4f46e5' : '#e2e8f0'
-                    }
-                  />
-                ))}
-              </Bar>
+              <Bar 
+                dataKey="hours" 
+                radius={[6, 6, 6, 6]} 
+                barSize={32}
+                shape={<RenderCustomBar />}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
-      </div>
-
-      {/* Motivation Tip */}
-      <div className="bg-indigo-50 border border-indigo-100 p-4 rounded-2xl">
-        <h4 className="text-indigo-900 font-bold text-sm mb-2">
-          生産性向上のワンポイントアドバイス
-        </h4>
-        <p className="text-indigo-700 text-xs leading-relaxed">
-          短時間の学習をコツコツ続ける方が、
-          一度に長時間詰め込むより効果的です。
-          ポモドーロ・テクニック（25分学習・5分休憩）を試して、
-          収益を最大化しましょう！
-        </p>
       </div>
     </div>
   );
