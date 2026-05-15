@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Play, Pause, Square, AlertCircle, TrendingUp } from "lucide-react";
+import { Play, Pause, AlertCircle, TrendingUp } from "lucide-react";
 import { UserSettings } from "@/types";
 import { Button } from "../ui/Button ";
 
@@ -38,12 +38,11 @@ export const TimerView = ({
 
   const currentEarnings = (passedSeconds / 3600) * settings.hourlyRate;
 
-  const toggleTimer = () => {
+  const stopTimer = () => {
     setIsActive((prev) => !prev);
   };
 
-  const stopTimer = () => {
-    if (passedSeconds <= 0) return;
+  const recordEarnings = () => {
     setIsActive(false);
 
     if (intervalRef.current !== null) {
@@ -111,23 +110,22 @@ export const TimerView = ({
         </div>
       </div>
 
-      <div className="flex gap-4 w-full max-w-xs">
+      <div className="w-full max-w-xs space-y-4">
         {isActive ? (
           <Button
-            variant="secondary"
+            variant="danger"
             size="xl"
             fullWidth
-            onClick={toggleTimer}
-            className="shadow-emerald-200 shadow-lg"
+            onClick={stopTimer}
           >
-            <Pause className="mr-2" /> ストップ
+            <Pause className="mr-2" /> 一時停止
           </Button>
         ) : (
           <Button
             variant="primary"
             size="xl"
             fullWidth
-            onClick={toggleTimer}
+            onClick={stopTimer}
           >
             <Play className="mr-2" />
             {passedSeconds > 0 ? "再開" : "開始"}
@@ -136,21 +134,20 @@ export const TimerView = ({
 
         {passedSeconds > 0 && (
           <Button
-            variant="danger"
+            variant="secondary"
             size="xl"
-            onClick={stopTimer}
-            className="w-auto px-6"
+            fullWidth
+            onClick={recordEarnings}
           >
-            <Square fill="currentColor" />
+            記帳する
           </Button>
         )}
       </div>
 
-      <div className="mt-8 text-xs text-slate-400 flex items-center gap-1 max-w-xs text-center leading-relaxed">
+      <div className="mt-8 text-xs text-slate-400 flex items-center max-w-sm text-center leading-relaxed">
         <AlertCircle size={12} />
         <span>
-          このタブを開いたままにして、時間を計測してください。
-          ブラウザの仕様により、バックグラウンドでの計測は制限されることがあります。
+          このタブを開いたまま、時間を計測してください。
         </span>
       </div>
     </div>

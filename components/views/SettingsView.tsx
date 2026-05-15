@@ -65,15 +65,13 @@ export const SettingsView = ({
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-50 bg-slate-50/50 flex flex-col justify-center gap-2">
           <h2 className="font-bold text-slate-700">時給 (¥)</h2>
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs text-slate-500">
             残高がどれくらいの速さで増えるかが決まります。
           </p>
         </div>
 
-        <form onSubmit={handleSave} className="p-5 space-y-6">
+        <form onSubmit={handleSave} className="px-5 pb-5 space-y-6">
           <div>
-            
-
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono">
                 ¥
@@ -87,15 +85,9 @@ export const SettingsView = ({
             </div>
           </div>
 
-          <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-            <p className="text-xs text-amber-800 font-medium">
-              注意: レートの変更は今後の勉強セッションにのみ影響します。現在の残高は変更されません。
-            </p>
-          </div>
-
           <Button type="submit" fullWidth size="lg" onClick={handleSave3}>
             <Save size={18} className="mr-2" />
-            保存
+            <span className="font-bold text-sm">保存</span>
           </Button>
         </form>
       </div>
@@ -103,8 +95,6 @@ export const SettingsView = ({
       {/* Footer */}
       <div className="text-center text-xs text-slate-300 mt-8">
         StudyBank v1.0.0
-        <br />
-        Concept MVP
       </div>
     </div>
   );

@@ -6,6 +6,10 @@ type HeadingProps = {
 
 export const Heading = ({ currentView }: HeadingProps) => {
   const VIEW_META: Record<AppView, { heading: string; description: string }> = {
+    [APP_VIEWS.TIMER]: {
+      heading: "",
+      description: "",
+    },
     [APP_VIEWS.WALLET]: {
       heading: "残高",
       description: "収益の管理と使用",
@@ -17,10 +21,6 @@ export const Heading = ({ currentView }: HeadingProps) => {
     [APP_VIEWS.SETTINGS]: {
       heading: "設定",
       description: "カスタマイズして、任意レートに調整",
-    },
-    [APP_VIEWS.TIMER]: {
-      heading: "",
-      description: "",
     },
   }
 
