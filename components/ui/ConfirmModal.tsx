@@ -73,6 +73,7 @@ export function ConfirmModal({
             variant="outline"
             size="lg"
             fullWidth
+            className="!font-bold text-xs"
             onClick={onCancel}
           >
             {cancelLabel}
@@ -82,6 +83,7 @@ export function ConfirmModal({
             variant="primary"
             size="lg"
             fullWidth
+            className="!font-bold text-xs"
             onClick={onConfirm}
           >
             {confirmLabel}

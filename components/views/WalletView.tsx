@@ -142,7 +142,7 @@ export const WalletView = ({ balance, totalEarned, transactions, onWithdraw }: W
               />
             </div>
 
-            <Button type="submit" fullWidth>
+            <Button type="submit" fullWidth className="!font-bold">
               出金する
             </Button>
           </form>
@@ -212,7 +212,7 @@ export const WalletView = ({ balance, totalEarned, transactions, onWithdraw }: W
                     }`}
                   >
                     {t.type === "EARN" ? "+" : "-"}¥
-                    {Math.floor(t.amount).toLocaleString()}.{(t.amount % 1).toFixed(2).substring(2)}
+                    {Math.floor(t.amount).toLocaleString()}
                   </div>
                 </div>
               ))

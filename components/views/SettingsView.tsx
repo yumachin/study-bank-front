@@ -40,11 +40,24 @@ export const SettingsView = ({ settings, onUpdateSettings }: SettingsViewProps) 
   const [targetIncome, setTargetIncome] = useState<string>(
     settings.targetIncome.toString()
   );
+  const [showSessionCompleteModal, setShowSessionCompleteModal] = useState(
+    settings.showSessionCompleteModal
+  );
+  const [showSessionStartModal, setShowSessionStartModal] = useState(
+    settings.showSessionStartModal
+  );
 
   useEffect(() => {
     setHourlyRate(settings.hourlyRate.toString());
     setTargetIncome(settings.targetIncome.toString());
-  }, [settings.hourlyRate, settings.targetIncome]);
+    setShowSessionCompleteModal(settings.showSessionCompleteModal);
+    setShowSessionStartModal(settings.showSessionStartModal);
+  }, [
+    settings.hourlyRate,
+    settings.targetIncome,
+    settings.showSessionCompleteModal,
+    settings.showSessionStartModal,
+  ]);
 
   const requiredStudyPreview = useMemo(() => {
     const rate = Number(hourlyRate);
@@ -80,6 +93,8 @@ export const SettingsView = ({ settings, onUpdateSettings }: SettingsViewProps) 
       ...settings,
       hourlyRate: rate,
       targetIncome: target,
+      showSessionCompleteModal,
+      showSessionStartModal,
     });
 
     showSuccessToast("設定を保存しました！");
@@ -154,6 +169,48 @@ export const SettingsView = ({ settings, onUpdateSettings }: SettingsViewProps) 
               必要な勉強時間:{" "}
               <span className="font-semibold ml-1">{requiredStudyPreview} / 月</span>
             </p>
+          </div>
+
+          <div className="space-y-3 border-t border-slate-100 pt-6">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              モーダル表示
+            </p>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+              <input
+                type="checkbox"
+                checked={showSessionStartModal}
+                onChange={(event) =>
+                  setShowSessionStartModal(event.target.checked)
+                }
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-slate-700">
+                  開始時に学習内容の入力を表示する
+                </span>
+                <span className="text-xs text-slate-500">
+                  タイマー開始時に、履歴へ残す学習名を入力するモーダルを表示します。
+                </span>
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+              <input
+                type="checkbox"
+                checked={showSessionCompleteModal}
+                onChange={(event) =>
+                  setShowSessionCompleteModal(event.target.checked)
+                }
+                className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-slate-700">
+                  記帳後にお祝いメッセージを表示する
+                </span>
+                <span className="text-xs text-slate-500">
+                  記帳して収支ページへ移動したとき、「お疲れ様でした！」のモーダルを表示します。
+                </span>
+              </span>
+            </label>
           </div>
 
           <Button type="submit" fullWidth size="lg" onClick={handleSave3}>

@@ -6,6 +6,8 @@ const DEFAULT_SETTINGS: UserSettings = {
   hourlyRate: 1000,
   targetIncome: 200000,
   dailyGoalSeconds: 60 * 60 * 2,
+  showSessionCompleteModal: true,
+  showSessionStartModal: true,
 };
 
 const INITIAL_STATE: AppState = {
@@ -15,11 +17,27 @@ const INITIAL_STATE: AppState = {
   sessions: [],
   transactions: [],
   settings: DEFAULT_SETTINGS,
+  studyNoteHistory: [],
 };
 
 export const loadState = (): AppState => {
   try {
-    return INITIAL_STATE;
+    const serialized = localStorage.getItem(STORAGE_KEY);
+    if (!serialized) {
+      return INITIAL_STATE;
+    }
+
+    const parsed = JSON.parse(serialized) as Partial<AppState>;
+
+    return {
+      ...INITIAL_STATE,
+      ...parsed,
+      settings: {
+        ...DEFAULT_SETTINGS,
+        ...parsed.settings,
+      },
+      studyNoteHistory: parsed.studyNoteHistory ?? [],
+    };
   } catch (err) {
     console.error("基本情報の取得に失敗", err);
     return INITIAL_STATE;

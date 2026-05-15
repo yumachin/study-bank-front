@@ -24,3 +24,52 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes session-sparkle-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateY(-18px) scale(1.15) rotate(12deg);
+    opacity: 1;
+  }
+}
+
+.session-sparkle {
+  position: absolute;
+  font-size: 1.5rem;
+  animation: session-sparkle-float 2.4s ease-in-out infinite;
+  user-select: none;
+}
+
+.session-sparkle-1 {
+  top: 18%;
+  left: 12%;
+  animation-delay: 0s;
+}
+
+.session-sparkle-2 {
+  top: 22%;
+  right: 14%;
+  animation-delay: 0.4s;
+}
+
+.session-sparkle-3 {
+  bottom: 28%;
+  left: 18%;
+  animation-delay: 0.8s;
+}
+
+.session-sparkle-4 {
+  bottom: 24%;
+  right: 20%;
+  animation-delay: 1.2s;
+}
+
+.session-sparkle-5 {
+  top: 42%;
+  left: 50%;
+  animation-delay: 1.6s;
+}
