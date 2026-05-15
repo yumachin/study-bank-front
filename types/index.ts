@@ -23,6 +23,8 @@ export interface Transaction {
 
 export interface UserSettings {
   hourlyRate: Yen;
+  /** この金額を稼ぐために必要な勉強時間を算出するための目標（円） */
+  targetIncomeYen: Yen;
   dailyGoalSeconds: Seconds;
 }
 

@@ -49,7 +49,7 @@ export const WalletView = ({
   };
 
   return (
-    <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
+    <div className="px-6 pb-24 space-y-6 max-w-md mx-auto">
       <Heading currentView={APP_VIEWS.WALLET} />
 
       <div className="bg-linear-to-br from-indigo-600 to-violet-700 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200 relative overflow-hidden">

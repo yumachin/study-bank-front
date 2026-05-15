@@ -1,15 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { APP_VIEWS, UserSettings } from "@/types";
 import { Save } from "lucide-react";
 import { Button } from "../ui/Button ";
 import { Heading } from "../ui/Heading";
 
+const SECONDS_PER_HOUR = 60 * 60;
+
 type SettingsViewProps = {
   settings: UserSettings;
   onUpdateSettings: (newSettings: UserSettings) => void;
 };
+
+/** 秒を「X時間Y分」風に整形（目標達成に必要な勉強時間の表示用） */
+function formatDurationJapanese(totalSeconds: number): string {
+  const rounded = Math.round(totalSeconds / 60) * 60;
+  const hours = Math.floor(rounded / SECONDS_PER_HOUR);
+  const minutes = Math.round((rounded % SECONDS_PER_HOUR) / 60);
+  if (hours === 0 && minutes === 0) {
+    return "1分未満";
+  }
+  const parts: string[] = [];
+  if (hours > 0) {
+    parts.push(`${hours}時間`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}分`);
+  }
+  return parts.join("") || "1分未満";
+}
 
 export const SettingsView = ({
   settings,
@@ -19,22 +39,52 @@ export const SettingsView = ({
   const [hourlyRate, setHourlyRate] = useState<string>(
     settings.hourlyRate.toString()
   );
+  const [targetIncomeYen, setTargetIncomeYen] = useState<string>(
+    settings.targetIncomeYen.toString()
+  );
+
+  useEffect(() => {
+    setHourlyRate(settings.hourlyRate.toString());
+    setTargetIncomeYen(settings.targetIncomeYen.toString());
+  }, [settings.hourlyRate, settings.targetIncomeYen]);
+
+  const requiredStudyPreview = useMemo(() => {
+    const rate = Number(hourlyRate);
+    const target = Number(targetIncomeYen);
+    if (
+      Number.isNaN(rate) ||
+      Number.isNaN(target) ||
+      rate <= 0 ||
+      target <= 0
+    ) {
+      return null;
+    }
+    const seconds = (target / rate) * SECONDS_PER_HOUR;
+    return formatDurationJapanese(seconds);
+  }, [hourlyRate, targetIncomeYen]);
 
   const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const rate = Number(hourlyRate);
+    const target = Number(targetIncomeYen);
 
-    if (!Number.isNaN(rate) && rate > 0) {
-      onUpdateSettings({
-        ...settings,
-        hourlyRate: rate,
-      });
-
-      alert("Settings saved successfully!");
-    } else {
-      alert("Please enter a valid positive number.");
+    if (Number.isNaN(rate) || rate <= 0) {
+      alert("時給は正の数で入力してください。");
+      return;
     }
+    if (Number.isNaN(target) || target < 0) {
+      alert("目標収入は0以上の数で入力してください。");
+      return;
+    }
+
+    onUpdateSettings({
+      ...settings,
+      hourlyRate: rate,
+      targetIncomeYen: target,
+    });
+
+    alert("設定を保存しました。");
   };
 
   const handleSave2 = async() => {
@@ -59,7 +109,7 @@ export const SettingsView = ({
 
 
   return (
-    <div className="p-6 pb-24 space-y-6 max-w-md mx-auto">
+    <div className="px-6 pb-24 space-y-6 max-w-md mx-auto">
       <Heading currentView={APP_VIEWS.SETTINGS} />
 
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
@@ -83,6 +133,37 @@ export const SettingsView = ({
                 className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono text-lg"
               />
             </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="flex flex-col gap-2">
+              <h2 className="font-bold text-slate-700">目標月収 (¥)</h2>
+              <p className="text-xs text-slate-500">
+                目標を決めると、必要な勉強時間が分かります。
+              </p>
+            </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono">
+                ¥
+              </span>
+              <input
+                type="number"
+                min={0}
+                value={targetIncomeYen}
+                onChange={(e) => setTargetIncomeYen(e.target.value)}
+                className="w-full pl-8 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono text-lg"
+              />
+            </div>
+            {requiredStudyPreview ? (
+              <p className="text-sm text-indigo-700 bg-indigo-50 rounded-xl px-3 py-2">
+                必要な勉強時間:{" "}
+                <span className="font-semibold ml-1">{requiredStudyPreview} / 月</span>
+              </p>
+            ) : (
+              <p className="text-xs text-slate-400">
+                時給と目標収入（1円以上）を入力すると、ここに目安が表示されます。
+              </p>
+            )}
           </div>
 
           <Button type="submit" fullWidth size="lg" onClick={handleSave3}>
